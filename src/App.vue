@@ -1,21 +1,22 @@
 <script setup lang="ts">
-// import City from './components/City.vue';
 import { ref } from 'vue';
-
-defineProps<{ weather: Object }>();
+import { WeatherTypes } from './types/WeatherTypes';
 
 const apiKey = 'ad36321557110c7f975fe5a74cb85cb6';
 
-const city = ref('');
-let weather = ref({});
+const city = ref<string>('');
+// const weather: Ref<WeatherTypes | null> = ref(null);
+const weather = ref<WeatherTypes | null>(null);
 
-const fetchWeather = (e: any) => {
+const fetchWeather = () => {
   try {
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.value}&appid=${apiKey}&units=metric`;
     fetch(url)
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: WeatherTypes) => {
         weather.value = data;
+        console.log(weather.value);
+
         handleBackground(weather.value.weather[0].main);
       });
   } catch (e) {
@@ -23,11 +24,9 @@ const fetchWeather = (e: any) => {
   }
 };
 
-const handleBackground = (desc) => {
-  console.log(desc);
+const handleBackground = (desc: String) => {
   const lowerDesc = desc.toLowerCase();
-  console.log(lowerDesc);
-  const app = document.querySelector('#app');
+  const app = document.querySelector('#app') as HTMLElement;
 
   if (lowerDesc === 'clear')
     app.style.backgroundImage = `url("https://cdn.pixabay.com/photo/2018/08/06/22/55/sun-3588618__480.jpg")`;
@@ -46,13 +45,13 @@ const handleBackground = (desc) => {
       <input
         class="search-container__input"
         type="text"
-        placeholder="Browse weather..."
+        placeholder="Browse for weather..."
         v-model="city"
         @keypress.enter="fetchWeather"
       />
     </div>
 
-    <div class="results" v-if="typeof weather.main !== 'undefined'">
+    <div class="results" v-if="weather">
       <div class="location-container">
         <h1 class="heading">
           {{ weather.name }}
